@@ -1,51 +1,61 @@
-import React, { Component } from 'react';
+import React, { useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Tasks } from '../api/tasks.js'; // Collection
 
-import Task from './Task.js'; // Component
+import { Task } from './Task.js'; // Component
 
 // App component - represents the whole app
-class App extends Component {
-    handleSubmit(event) {
+function App(props) {
+
+    const textInput = useRef();
+
+    useEffect(() => textInput.current && textInput.current.focus());
+
+    const handleSubmit = (event) => {
         event.preventDefault();
 
-        const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+        const text = textInput.current.value.trim();
+
 
         Tasks.insert({
             text,
             createdAt: new Date(),
         });
 
-        ReactDOM.findDOMNode(this.refs.textInput).value = '';
+        textInput.current.value = '';
     }
 
-    renderTasks() {
-        return this.props.tasks.map((task) => (
+    const renderTasks = (tasks) => {
+        return tasks.map((task) => (
             <Task key={task._id} task={task} />
         ));
     }
 
-    render() {
-        return (
-            <div className="container">
-                <header>
-                    <h1>Todo List</h1>
-                </header>
+    return (
+        <div className="container">
+            <header>
+                <h1>Todo List</h1>
+            </header>
 
-                <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
-                    <input type="text" ref="textInput" placeholder="Type to add new tasks" />
-                </form>
-                <ul>
-                    {this.renderTasks()}
-                </ul>
-            </div>
-        );
-    }
+            <form className="new-task" onSubmit={(e) => handleSubmit(e)} >
+                <input
+                    type="text"
+                    ref={textInput}
+                    placeholder="Type to add new tasks"
+                />
+            </form>
+            <ul>
+                {renderTasks(props.tasks)}
+            </ul>
+        </div>
+    );
 }
 
 export default withTracker(() => {
     return {
-        tasks: Tasks.find({}, {sort: { createdAt: -1 } }).fetch(),
+        tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
     };
 })(App);
+
+
