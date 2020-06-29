@@ -21,16 +21,8 @@ function App(props) {
 
         const text = textInput.current.value.trim();
 
-
-        Tasks.insert({
-            text,
-            createdAt: new Date(),
-            owner: Meteor.userId(),
-            username: Meteor.user().username,
-        });
-
-        console.log(Meteor.user());
-
+        Meteor.call('tasks.insert', text);
+        
         textInput.current.value = '';
     }
 
