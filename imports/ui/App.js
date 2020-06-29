@@ -1,9 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Tasks } from '../api/tasks.js'; // Collection
+import { Meteor } from 'meteor/meteor';
 
-import { Task } from './Task.js'; // Component
+import { withTracker } from 'meteor/react-meteor-data';
+import AccountsUIWrapper from './AccountsUIWrapper.js';
+import { Task } from './Task.js'; // Components
+
+
+import { Tasks } from '../api/tasks.js'; // Collection
 
 // App component - represents the whole app
 function App(props) {
@@ -22,7 +25,11 @@ function App(props) {
         Tasks.insert({
             text,
             createdAt: new Date(),
+            owner: Meteor.userId(),
+            username: Meteor.user().username,
         });
+
+        console.log(Meteor.user());
 
         textInput.current.value = '';
     }
@@ -54,13 +61,18 @@ function App(props) {
                     />
                     Hide Completed Tasks
                 </label>
-                <form className="new-task" onSubmit={(e) => handleSubmit(e)} >
-                    <input
-                        type="text"
-                        ref={textInput}
-                        placeholder="Type to add new tasks"
-                    />
-                </form>
+
+                <AccountsUIWrapper />
+                {
+                    props.currentUser ?
+                    <form className="new-task" onSubmit={(e) => handleSubmit(e)} >
+                        <input
+                            type="text"
+                            ref={textInput}
+                            placeholder="Type to add new tasks"
+                        />
+                    </form> : ''
+                }
             </header>
 
             <ul>
@@ -74,6 +86,7 @@ export default withTracker(() => {
     return {
         tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
         incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
+        currentUser: Meteor.user(),
     };
 })(App);
 
