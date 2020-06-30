@@ -22,7 +22,7 @@ function App(props) {
         const text = textInput.current.value.trim();
 
         Meteor.call('tasks.insert', text);
-        
+
         textInput.current.value = '';
     }
 
@@ -33,9 +33,19 @@ function App(props) {
             filteredTasks = filteredTasks.filter(task => !task.checked);
         }
 
-        return filteredTasks.map((task) => (
-            <Task key={task._id} task={task} />
-        ));
+        return filteredTasks.map((task) => {
+            const currentUserId = props.currentUser && props.currentUser._id;
+            const isOwner = task.owner === currentUserId;
+       
+            return (
+              <Task
+                key={task._id}
+                task={task}
+                isOwner={isOwner}
+                currentUserId={currentUserId}
+              />
+            );
+          });
     }
 
     return (
@@ -75,6 +85,9 @@ function App(props) {
 }
 
 export default withTracker(() => {
+    
+    Meteor.subscribe('tasks');
+
     return {
         tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
         incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
