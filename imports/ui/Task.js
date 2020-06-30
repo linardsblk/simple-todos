@@ -1,6 +1,7 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import classnames from 'classnames';
+import { format } from 'timeago.js';
 
 
 // Task component - represents a single todo item
@@ -26,7 +27,7 @@ export function Task(props) {
 
     return (
         <li className={taskClassName}>
-
+            
             {
                 props.isOwner &&
                 <button className="delete" onClick={deleteThisTask}>&times;</button>
@@ -36,6 +37,9 @@ export function Task(props) {
                 props.currentUserId &&
                 <input type="checkbox" readOnly checked={!!props.task.checked} onClick={toggleChecked} />
             }
+
+            
+
             {
                 props.isOwner &&
                 <button className="toggle-private" onClick={togglePrivate}>
@@ -46,6 +50,8 @@ export function Task(props) {
             <span>
                 <strong>{props.task.username}</strong>: {props.task.text}
             </span>
+
+            <span className ="time-ago">{format(props.task.createdAt)}</span>
         </li>
     );
 

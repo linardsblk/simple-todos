@@ -77,6 +77,12 @@ ul {
   position: relative;
 }
 
+.time-ago {
+  float: right;
+  opacity: 50%;
+  position: relative;
+}
+
 li {
   position: relative;
   list-style: none;
